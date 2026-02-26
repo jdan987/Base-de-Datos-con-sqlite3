@@ -11,22 +11,36 @@ CREATE TABLE IF NOT EXISTS usuarios (
     nombre TEXT NOT NULL,
     edad INTEGER
 )
-""")
-
-conexion.commit()
+""") 
+#Se crearon tres tablas: Id, nombres y edad
+conexion.commit() #guarda la info en la base de datos
 
 # -------- FUNCIONES --------
 
 def agregar_usuario(nombre, edad):
-    cursor.execute("INSERT INTO usuarios (nombre, edad) VALUES (?, ?)", (nombre, edad))
+    if not nombre.strip():
+        print("Error: el nombre no puede estar vacío")
+        return
+    if edad < 0:
+        print("Error: la edad no puede ser negativa")
+        return
+
+    
+    cursor.execute("INSERT INTO usuarios (nombre, edad) VALUES (?, ?)", (nombre, edad)) # (?, ?) sirve para que SQL no introduzca valores ignorando los valores ya dados.
     conexion.commit()
     print("Usuario agregado")
 
 def ver_usuarios():
     cursor.execute("SELECT * FROM usuarios")
-    usuarios = cursor.fetchall()
+    usuarios = cursor.fetchall() #Devuelve una lista de  tuplas con los valores.
     for u in usuarios:
         print(u)
+
+def buscar_usuario_por_nombre(nombre):
+    cursor.execute("SELECT * FROM usuarios WHERE nombre LIKE ?", ('%' + nombre + '%',))
+    resultados = cursor.fetchall()
+    for r in resultados:
+        print(r)
 
 def actualizar_usuario(id, nombre, edad):
     cursor.execute("UPDATE usuarios SET nombre = ?, edad = ? WHERE id = ?", (nombre, edad, id))
@@ -35,7 +49,7 @@ def actualizar_usuario(id, nombre, edad):
 
 def eliminar_usuario(id):
     cursor.execute("DELETE FROM usuarios WHERE id = ?", (id,))
-    conexion.commit()
+    conexion.commit() #Permite crear comandos
     print("Usuario eliminado")
 
 # -------- PRUEBA --------
@@ -45,6 +59,8 @@ agregar_usuario("Maria", 30)
 
 print("\nUsuarios:")
 ver_usuarios()
+
+buscar_usuario_por_nombre("Juan")
 
 actualizar_usuario(1, "Juan Perez", 26)
 
